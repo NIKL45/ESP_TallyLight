@@ -1,5 +1,11 @@
 /*
   vMix Tally Lights
+
+  http://vicksmediatech.com/2020/03/18/wifi-tally-lights-for-vmix-software/
+
+  https://www.youtube.com/watch?v=cOqnw6gP_XU
+  
+
 */
 
 #include <EEPROM.h>
@@ -8,6 +14,9 @@
 #include <WiFiClient.h>
 #include "FS.h"
 
+#include <FastLED.h>
+#define NUM_LEDS 8
+CRGB leds[NUM_LEDS];
 /////////////////////////////////////////
 
 bool debug = true;
@@ -17,13 +26,15 @@ bool debug = true;
 //------------------------------------------------------------Change to your desire settings-----------------------------------------------
 //Everything you edit here is for Setting Pin for led control
 
-const int LEDstatusPin = 15; //Status LED
+#define LEDstatusPin 15 //(Pin D8) Status LED
 
-const int LEDactivePin = 12; //Active Tally LED
+#define LEDactivePin 12 //(Pin D6) Active Tally 
 
-const int LEDpreviewPin = 13; //Preview Tally LED
+#define LEDpreviewPin 13 //(Pin D7) Preview Tally LED 
 
-const int SettingsResetPin = 14; //Connect this Pin to GND while restarting to reset the Wifi/vMix Settings and enter the config mode
+#define SettingsResetPin 14 //(Pin D5) Connect this Pin to GND while restarting to reset the Wifi/vMix Settings and enter the config mode
+
+#define LEDsDataPin 4 //(Pin D2) 
 
 //----------------Web Menu Setting-----------------------------------
 //Everything you edit here is for web menu style, name, color
@@ -34,7 +45,7 @@ const char *backColor = "grey"; //Background Tally Menu
 
 const char *tallyCompany = "vMix";
 
-const char *tallyDescriptions = "Niklas Weidner";
+const char *tallyDescriptions = "NW";
 
 //--------------------------Tally AP Settings--------------------------
 //Everything you edit here is for your Tally Setting IP Address, SSID & Password
@@ -218,53 +229,106 @@ void printSettings()
 // Set LED's off
 void ledSetOff()
 {
-  digitalWrite(LEDstatusPin, LOW);
-  digitalWrite(LEDactivePin, LOW);
-  digitalWrite(LEDpreviewPin, LOW);
-  digitalWrite(LEDstatusPin, HIGH);
+  // digitalWrite(LEDstatusPin, LOW);
+  // digitalWrite(LEDactivePin, LOW);
+  // digitalWrite(LEDpreviewPin, LOW);
+  // digitalWrite(LEDstatusPin, HIGH);
+
+  for (int i = 2; i <= 7; i++)
+  {
+    leds[i] = CRGB::Black;
+  }
+
+  leds[1] = CRGB::Black;
+  leds[0] = CRGB(0, 0, 150);
+  FastLED.show();
 }
 
 // Set active
 void ledTallyActive()
 {
-  digitalWrite(LEDstatusPin, LOW);
-  digitalWrite(LEDactivePin, LOW);
-  digitalWrite(LEDpreviewPin, LOW);
-  digitalWrite(LEDactivePin, HIGH);
-  digitalWrite(LEDstatusPin, HIGH);
+  // digitalWrite(LEDstatusPin, LOW);
+  // digitalWrite(LEDactivePin, LOW);
+  // digitalWrite(LEDpreviewPin, LOW);
+  // digitalWrite(LEDactivePin, HIGH);
+  // digitalWrite(LEDstatusPin, HIGH);
+
+  for (int i = 2; i <= 7; i++)
+  {
+    leds[i] = CRGB(0, 255, 0); // = Red
+  }
+  leds[1] = CRGB::Red;
+  leds[0] = CRGB(0, 0, 150);
+  FastLED.show();
 }
 
 // Set Preview
 void ledSetPreview()
 {
-  digitalWrite(LEDstatusPin, LOW);
-  digitalWrite(LEDactivePin, LOW);
-  digitalWrite(LEDpreviewPin, LOW);
-  digitalWrite(LEDpreviewPin, HIGH);
-  digitalWrite(LEDstatusPin, HIGH);
+  // digitalWrite(LEDstatusPin, LOW);
+  // digitalWrite(LEDactivePin, LOW);
+  // digitalWrite(LEDpreviewPin, LOW);
+  // digitalWrite(LEDpreviewPin, HIGH);
+  // digitalWrite(LEDstatusPin, HIGH);
+
+  for (int i = 2; i <= 7; i++)
+  {
+    leds[i] = CRGB::Black;
+  }
+
+  leds[1] = CRGB::Green;
+  leds[0] = CRGB(0, 0, 150);
+  FastLED.show();
 }
 
 // Draw C(onnecting) with LED's
 void ledSetConnecting()
 {
-  digitalWrite(LEDstatusPin, LOW);
-  digitalWrite(LEDpreviewPin, LOW);
-  digitalWrite(LEDactivePin, LOW);
-  digitalWrite(LEDstatusPin, HIGH);
-  delay(150);
-  digitalWrite(LEDstatusPin, LOW);
-  delay(150);
-  digitalWrite(LEDstatusPin, HIGH);
-  delay(150);
-  digitalWrite(LEDstatusPin, LOW);
+  // digitalWrite(LEDstatusPin, LOW);
+  // digitalWrite(LEDpreviewPin, LOW);
+  // digitalWrite(LEDactivePin, LOW);
+  // digitalWrite(LEDstatusPin, HIGH);
+  // delay(150);
+  // digitalWrite(LEDstatusPin, LOW);
+  // delay(150);
+  // digitalWrite(LEDstatusPin, HIGH);
+  // delay(150);
+  // digitalWrite(LEDstatusPin, LOW);
+
+  for (int i = 2; i <= 7; i++)
+  {
+    leds[i] = CRGB::Black;
+  }
+
+  leds[1] = CRGB::Black;
+  leds[0] = CRGB(0, 0, 150);
+  FastLED.show();
+  // delay(100);
+  // leds[0] = CRGB::Black;
+  // FastLED.show();
+  // delay(100);
+  // leds[0] = CRGB(0, 0, 150);
+  // FastLED.show();
+  // delay(100);
+  // leds[0] = CRGB::Black;
+  // FastLED.show();
 }
 
 // Draw S(ettings) with LED's
 void ledSetSettings()
 {
-  digitalWrite(LEDstatusPin, HIGH);
-  digitalWrite(LEDpreviewPin, LOW);
-  digitalWrite(LEDactivePin, LOW);
+  // digitalWrite(LEDstatusPin, HIGH);
+  // digitalWrite(LEDpreviewPin, LOW);
+  // digitalWrite(LEDactivePin, LOW);
+
+  for (int i = 2; i <= 7; i++)
+  {
+    leds[i] = CRGB::Black;
+  }
+
+  leds[1] = CRGB::Black;
+  leds[0] = CRGB(0, 0, 150);
+  FastLED.show();
 }
 
 // Set tally to off
@@ -513,7 +577,9 @@ void connectToWifi()
   //Serial.print("Passphrase: ");
   //Serial.println(settings.pass);
 
-  int timeout = 20;
+  int timeout = 30;
+
+  ledSetConnecting();
 
   WiFi.softAPdisconnect(true);
   WiFi.mode(WIFI_STA);
@@ -687,6 +753,14 @@ void setup()
   digitalWrite(LEDpreviewPin, LOW);
 
   ////////////////////////////////////////////////////
+
+  FastLED.addLeds<WS2812B, LEDsDataPin, RGB>(leds, NUM_LEDS);
+
+  for (int i = 2; i <= 7; i++)
+  {
+    leds[i] = CRGB::Black;
+  }
+  FastLED.show();
 
   httpServer.on("/", HTTP_GET, rootPageHandler);
   httpServer.on("/save", HTTP_POST, handleSave);
