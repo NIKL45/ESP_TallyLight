@@ -34,7 +34,7 @@ bool debug = true;
 
 #define SettingsResetPin 14 //(Pin D5) Connect this Pin to GND while restarting to reset the Wifi/vMix Settings and enter the config mode
 
-#define LEDsDataPin 4 //(Pin D2) 
+#define LEDsDataPin 16 //(Pin D0) 
 
 //----------------Web Menu Setting-----------------------------------
 //Everything you edit here is for web menu style, name, color
