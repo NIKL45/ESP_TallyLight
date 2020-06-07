@@ -28,13 +28,13 @@ bool debug = true;
 
 #define LEDstatusPin 15 //(Pin D8) Status LED
 
-#define LEDactivePin 12 //(Pin D6) Active Tally 
+#define LEDactivePin 12 //(Pin D6) Active Tally
 
-#define LEDpreviewPin 13 //(Pin D7) Preview Tally LED 
+#define LEDpreviewPin 13 //(Pin D7) Preview Tally LED
 
-#define SettingsResetPin 14 //(Pin D5) Connect this Pin to GND while restarting to reset the Wifi/vMix Settings and enter the config mode
+#define SettingsResetPin 2 //(Pin D4) Connect this Pin to GND while restarting to reset the Wifi/vMix Settings and enter the config mode
 
-#define LEDsDataPin 16 //(Pin D0) 
+#define LEDsDataPin 14 //(Pin D5)
 
 //----------------Web Menu Setting-----------------------------------
 //Everything you edit here is for web menu style, name, color
@@ -229,10 +229,10 @@ void printSettings()
 // Set LED's off
 void ledSetOff()
 {
-  // digitalWrite(LEDstatusPin, LOW);
-  // digitalWrite(LEDactivePin, LOW);
-  // digitalWrite(LEDpreviewPin, LOW);
-  // digitalWrite(LEDstatusPin, HIGH);
+  digitalWrite(LEDstatusPin, LOW);
+  digitalWrite(LEDactivePin, LOW);
+  digitalWrite(LEDpreviewPin, LOW);
+  digitalWrite(LEDstatusPin, HIGH);
 
   for (int i = 2; i <= 7; i++)
   {
@@ -247,11 +247,11 @@ void ledSetOff()
 // Set active
 void ledTallyActive()
 {
-  // digitalWrite(LEDstatusPin, LOW);
-  // digitalWrite(LEDactivePin, LOW);
-  // digitalWrite(LEDpreviewPin, LOW);
-  // digitalWrite(LEDactivePin, HIGH);
-  // digitalWrite(LEDstatusPin, HIGH);
+  digitalWrite(LEDstatusPin, LOW);
+  digitalWrite(LEDactivePin, LOW);
+  digitalWrite(LEDpreviewPin, LOW);
+  digitalWrite(LEDactivePin, HIGH);
+  digitalWrite(LEDstatusPin, HIGH);
 
   for (int i = 2; i <= 7; i++)
   {
@@ -265,11 +265,11 @@ void ledTallyActive()
 // Set Preview
 void ledSetPreview()
 {
-  // digitalWrite(LEDstatusPin, LOW);
-  // digitalWrite(LEDactivePin, LOW);
-  // digitalWrite(LEDpreviewPin, LOW);
-  // digitalWrite(LEDpreviewPin, HIGH);
-  // digitalWrite(LEDstatusPin, HIGH);
+  digitalWrite(LEDstatusPin, LOW);
+  digitalWrite(LEDactivePin, LOW);
+  digitalWrite(LEDpreviewPin, LOW);
+  digitalWrite(LEDpreviewPin, HIGH);
+  digitalWrite(LEDstatusPin, HIGH);
 
   for (int i = 2; i <= 7; i++)
   {
@@ -284,10 +284,10 @@ void ledSetPreview()
 // Draw C(onnecting) with LED's
 void ledSetConnecting()
 {
-  // digitalWrite(LEDstatusPin, LOW);
-  // digitalWrite(LEDpreviewPin, LOW);
-  // digitalWrite(LEDactivePin, LOW);
-  // digitalWrite(LEDstatusPin, HIGH);
+  digitalWrite(LEDstatusPin, LOW);
+  digitalWrite(LEDpreviewPin, LOW);
+  digitalWrite(LEDactivePin, LOW);
+  digitalWrite(LEDstatusPin, HIGH);
   // delay(150);
   // digitalWrite(LEDstatusPin, LOW);
   // delay(150);
@@ -317,9 +317,9 @@ void ledSetConnecting()
 // Draw S(ettings) with LED's
 void ledSetSettings()
 {
-  // digitalWrite(LEDstatusPin, HIGH);
-  // digitalWrite(LEDpreviewPin, LOW);
-  // digitalWrite(LEDactivePin, LOW);
+  digitalWrite(LEDstatusPin, HIGH);
+  digitalWrite(LEDpreviewPin, LOW);
+  digitalWrite(LEDactivePin, LOW);
 
   for (int i = 2; i <= 7; i++)
   {
@@ -579,7 +579,7 @@ void connectToWifi()
 
   int timeout = 30;
 
-  ledSetConnecting();
+  //ledSetConnecting();
 
   WiFi.softAPdisconnect(true);
   WiFi.mode(WIFI_STA);
@@ -726,7 +726,7 @@ void setup()
 
   if (debug)
   {
-    Serial.begin(9600);
+    Serial.begin(115200);
   }
 
   EEPROM.begin(512);
@@ -756,7 +756,7 @@ void setup()
 
   FastLED.addLeds<WS2812B, LEDsDataPin, RGB>(leds, NUM_LEDS);
 
-  for (int i = 2; i <= 7; i++)
+  for (int i = 0; i <= 7; i++)
   {
     leds[i] = CRGB::Black;
   }
