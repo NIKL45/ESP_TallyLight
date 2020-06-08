@@ -19,7 +19,7 @@
 CRGB leds[NUM_LEDS];
 /////////////////////////////////////////
 
-bool debug = true;
+bool debug = false;
 
 /////////////////////////////////////////
 
@@ -72,10 +72,11 @@ const char ActiveTally = 1;
 const char previewTally = 2;
 
 unsigned long previousMillis = 0;
-unsigned long longinterval = 1000;
+unsigned long longinterval = 800;
 unsigned long shortinterval = 250;
-int StatusLEDMode = 0;   /////////////////// 0: connecting , 1: connected , 2: config needed
+int StatusLEDMode = 0;        /////////////////// 0: connecting , 1: connected , 2: config needed
 bool StatusLEDStatus = false; // on / off
+bool LastStatusLEDStatus = false;
 
 const int sizeOfSsid = 32;
 const int sizeOfPass = 32;
@@ -234,7 +235,9 @@ void printSettings()
 
 void handleStatusLED(int status)
 {
-  Serial.println("Stat");
+  //Serial.println("Stat");
+
+  LastStatusLEDStatus = StatusLEDStatus;
 
   if (status == 0) // connecting
   {
@@ -243,7 +246,7 @@ void handleStatusLED(int status)
     if (currentMillis - previousMillis >= longinterval)
     {
       previousMillis = currentMillis;
-      StatusLEDStatus =! StatusLEDStatus;
+      StatusLEDStatus = !StatusLEDStatus;
     }
   }
   else if (status == 1) // connected
@@ -257,7 +260,7 @@ void handleStatusLED(int status)
     if (currentMillis - previousMillis >= shortinterval)
     {
       previousMillis = currentMillis;
-      StatusLEDStatus =! StatusLEDStatus;
+      StatusLEDStatus = !StatusLEDStatus;
     }
   }
 
@@ -271,7 +274,11 @@ void handleStatusLED(int status)
     leds[0] = CRGB(0, 0, 150);
     break;
   }
-  FastLED.show();
+
+  if (LastStatusLEDStatus == !StatusLEDStatus)
+  {
+    FastLED.show();
+  }
 }
 
 // Set LED's off
@@ -281,7 +288,6 @@ void ledSetOff()
   digitalWrite(LEDactivePin, LOW);
   digitalWrite(LEDpreviewPin, LOW);
   digitalWrite(LEDstatusPin, HIGH);
-
   for (int i = 2; i <= 7; i++)
   {
     leds[i] = CRGB::Black;
@@ -336,12 +342,6 @@ void ledSetConnecting()
   digitalWrite(LEDpreviewPin, LOW);
   digitalWrite(LEDactivePin, LOW);
   digitalWrite(LEDstatusPin, HIGH);
-  // delay(150);
-  // digitalWrite(LEDstatusPin, LOW);
-  // delay(150);
-  // digitalWrite(LEDstatusPin, HIGH);
-  // delay(150);
-  // digitalWrite(LEDstatusPin, LOW);
 
   for (int i = 2; i <= 7; i++)
   {
@@ -351,15 +351,6 @@ void ledSetConnecting()
   leds[1] = CRGB::Black;
   //leds[0] = CRGB(0, 0, 150);
   FastLED.show();
-  // delay(100);
-  // leds[0] = CRGB::Black;
-  // FastLED.show();
-  // delay(100);
-  // leds[0] = CRGB(0, 0, 150);
-  // FastLED.show();
-  // delay(100);
-  // leds[0] = CRGB::Black;
-  // FastLED.show();
 }
 
 // Draw S(ettings) with LED's
@@ -625,7 +616,7 @@ void connectToWifi()
   //Serial.print("Passphrase: ");
   //Serial.println(settings.pass);
 
-  int timeout = 30;
+  int timeout = 43;
 
   //ledSetConnecting();
 
@@ -646,7 +637,7 @@ void connectToWifi()
   Serial.print("Waiting for connection.");
   while (WiFi.status() != WL_CONNECTED and timeout > 0)
   {
-    delay(1000);
+    delay(700);
     timeout--;
     Serial.print(".");
     StatusLEDMode = 0;
@@ -723,12 +714,18 @@ void vMixConnect()
   Serial.print("Connecting to vMix on ");
   Serial.print(settings.hostName);
   Serial.print("...");
+  StatusLEDMode = 0;
+  handleStatusLED(StatusLEDMode);
+  leds[0] = CRGB(0, 0, 0);
+  FastLED.show();
 
   if (client.connect(settings.hostName, port))
   {
     Serial.println(" Connected!");
     Serial.println("------------");
-
+    StatusLEDMode = 1;
+    leds[0] = CRGB(0, 0, 150);
+    FastLED.show();
     ledTallyOff();
 
     // Subscribe to the tally events
@@ -737,7 +734,7 @@ void vMixConnect()
   else
   {
     Serial.println(" Not found!");
-    StatusLEDMode = 0;
+    StatusLEDMode = 2;
   }
 }
 
@@ -791,7 +788,7 @@ void setup()
 
   pinMode(SettingsResetPin, INPUT_PULLUP);
 
-  if (digitalRead(SettingsResetPin) == LOW) // unnecessary
+  if (digitalRead(SettingsResetPin) == LOW)
   {
     apStart();
   }
@@ -830,6 +827,9 @@ void setup()
 
 void loop()
 {
+  // Serial.println(StatusLEDMode);
+  // Serial.println(millis());
+  // delay(10);
   handleStatusLED(StatusLEDMode);
 
   httpServer.handleClient();
@@ -845,11 +845,8 @@ void loop()
     tallyConnectAtur();
     handleStatusLED(StatusLEDMode);
     client.stop();
-    handleStatusLED(StatusLEDMode);
     vMixConnect();
     handleStatusLED(StatusLEDMode);
     lastCheck = millis();
   }
-
-  
 }
