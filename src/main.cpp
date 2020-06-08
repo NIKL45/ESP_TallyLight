@@ -271,7 +271,7 @@ void handleStatusLED(int status)
     break;
 
   case 1:
-    leds[0] = CRGB(0, 0, 150);
+    leds[0] = CRGB(0, 0, 70);
     break;
   }
 
@@ -294,7 +294,7 @@ void ledSetOff()
   }
 
   leds[1] = CRGB::Black;
-  //leds[0] = CRGB(0, 0, 150);
+  //leds[0] = CRGB(0, 0, 70);
   FastLED.show();
 }
 
@@ -312,7 +312,7 @@ void ledTallyActive()
     leds[i] = CRGB(0, 255, 0); // = Red
   }
   leds[1] = CRGB::Red;
-  //leds[0] = CRGB(0, 0, 150);
+  //leds[0] = CRGB(0, 0, 70);
   FastLED.show();
 }
 
@@ -331,7 +331,7 @@ void ledSetPreview()
   }
 
   leds[1] = CRGB::Green;
-  //leds[0] = CRGB(0, 0, 150);
+  //leds[0] = CRGB(0, 0, 70);
   FastLED.show();
 }
 
@@ -349,7 +349,7 @@ void ledSetConnecting()
   }
 
   leds[1] = CRGB::Black;
-  //leds[0] = CRGB(0, 0, 150);
+  //leds[0] = CRGB(0, 0, 70);
   FastLED.show();
 }
 
@@ -366,7 +366,7 @@ void ledSetSettings()
   }
 
   leds[1] = CRGB::Black;
-  //leds[0] = CRGB(0, 0, 150);
+  //leds[0] = CRGB(0, 0, 70);
   FastLED.show();
 }
 
@@ -724,7 +724,7 @@ void vMixConnect()
     Serial.println(" Connected!");
     Serial.println("------------");
     StatusLEDMode = 1;
-    leds[0] = CRGB(0, 0, 150);
+    leds[0] = CRGB(0, 0, 70);
     FastLED.show();
     ledTallyOff();
 
@@ -782,7 +782,7 @@ void setup()
   }
 
   EEPROM.begin(512);
-  SPIFFS.begin();
+  //SPIFFS.begin();
 
   ////////////////////////////////////////////////////
 
@@ -816,7 +816,7 @@ void setup()
 
   httpServer.on("/", HTTP_GET, rootPageHandler);
   httpServer.on("/save", HTTP_POST, handleSave);
-  httpServer.serveStatic("/", SPIFFS, "/", "max-age=315360000");
+  //httpServer.serveStatic("/", SPIFFS, "/", "max-age=315360000");
   httpServer.begin();
 
   if (!apEnabled)
