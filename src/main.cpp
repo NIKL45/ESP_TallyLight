@@ -30,11 +30,11 @@ bool debug = true;
 
 #define LEDactivePin 12 //(Pin D6) Active Tally
 
-#define LEDpreviewPin 13 //(Pin D7) Preview Tally LED
+#define LEDpreviewPin 14 //(Pin D5) Preview Tally LED
 
-#define SettingsResetPin 2 //(Pin D4) Connect this Pin to GND while restarting to reset the Wifi/vMix Settings and enter the config mode
+#define SettingsResetPin 16 //(Pin D0) Connect this Pin to GND while restarting to reset the Wifi/vMix Settings and enter the config mode
 
-#define LEDsDataPin 14 //(Pin D5)
+#define LEDsDataPin 13 //(Pin D7)
 
 //----------------Web Menu Setting-----------------------------------
 //Everything you edit here is for web menu style, name, color
@@ -71,6 +71,12 @@ const char statusOffTally = 0;
 const char ActiveTally = 1;
 const char previewTally = 2;
 
+unsigned long previousMillis = 0;
+unsigned long longinterval = 1000;
+unsigned long shortinterval = 250;
+int StatusLEDMode = 0;   /////////////////// 0: connecting , 1: connected , 2: config needed
+bool StatusLEDStatus = false; // on / off
+
 const int sizeOfSsid = 32;
 const int sizeOfPass = 32;
 const int sizeOfHostName = 24;
@@ -99,11 +105,11 @@ int timeout = 10;
 int delayTime = 5000;
 
 // Time measure
-int interval = 5000;
 unsigned long lastCheck = 0;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void handleStatusLED(int status);
 void loadSettings();
 void saveSettings();
 void printSettings();
@@ -226,6 +232,48 @@ void printSettings()
   Serial.println(settings.tallyNumber);
 }
 
+void handleStatusLED(int status)
+{
+  Serial.println("Stat");
+
+  if (status == 0) // connecting
+  {
+    unsigned long currentMillis = millis();
+
+    if (currentMillis - previousMillis >= longinterval)
+    {
+      previousMillis = currentMillis;
+      StatusLEDStatus =! StatusLEDStatus;
+    }
+  }
+  else if (status == 1) // connected
+  {
+    StatusLEDStatus = true;
+  }
+  else if (status == 2) // config needed
+  {
+    unsigned long currentMillis = millis();
+
+    if (currentMillis - previousMillis >= shortinterval)
+    {
+      previousMillis = currentMillis;
+      StatusLEDStatus =! StatusLEDStatus;
+    }
+  }
+
+  switch (StatusLEDStatus)
+  {
+  case 0:
+    leds[0] = CRGB(0, 0, 0);
+    break;
+
+  case 1:
+    leds[0] = CRGB(0, 0, 150);
+    break;
+  }
+  FastLED.show();
+}
+
 // Set LED's off
 void ledSetOff()
 {
@@ -240,7 +288,7 @@ void ledSetOff()
   }
 
   leds[1] = CRGB::Black;
-  leds[0] = CRGB(0, 0, 150);
+  //leds[0] = CRGB(0, 0, 150);
   FastLED.show();
 }
 
@@ -258,7 +306,7 @@ void ledTallyActive()
     leds[i] = CRGB(0, 255, 0); // = Red
   }
   leds[1] = CRGB::Red;
-  leds[0] = CRGB(0, 0, 150);
+  //leds[0] = CRGB(0, 0, 150);
   FastLED.show();
 }
 
@@ -277,7 +325,7 @@ void ledSetPreview()
   }
 
   leds[1] = CRGB::Green;
-  leds[0] = CRGB(0, 0, 150);
+  //leds[0] = CRGB(0, 0, 150);
   FastLED.show();
 }
 
@@ -301,7 +349,7 @@ void ledSetConnecting()
   }
 
   leds[1] = CRGB::Black;
-  leds[0] = CRGB(0, 0, 150);
+  //leds[0] = CRGB(0, 0, 150);
   FastLED.show();
   // delay(100);
   // leds[0] = CRGB::Black;
@@ -327,7 +375,7 @@ void ledSetSettings()
   }
 
   leds[1] = CRGB::Black;
-  leds[0] = CRGB(0, 0, 150);
+  //leds[0] = CRGB(0, 0, 150);
   FastLED.show();
 }
 
@@ -601,6 +649,8 @@ void connectToWifi()
     delay(1000);
     timeout--;
     Serial.print(".");
+    StatusLEDMode = 0;
+    handleStatusLED(StatusLEDMode);
   }
 
   if (WiFi.status() == WL_CONNECTED)
@@ -611,6 +661,7 @@ void connectToWifi()
     Serial.print("Device name: ");
     Serial.println(deviceName);
     Serial.println("------------");
+    StatusLEDMode = 1;
   }
   else
   {
@@ -630,6 +681,8 @@ void connectToWifi()
       Serial.println("Unknown Failure");
 
     Serial.println("------------");
+    StatusLEDMode = 2;
+    handleStatusLED(StatusLEDMode);
     apStart();
   }
 }
@@ -684,6 +737,7 @@ void vMixConnect()
   else
   {
     Serial.println(" Not found!");
+    StatusLEDMode = 0;
   }
 }
 
@@ -706,6 +760,7 @@ void restart()
 
 void start()
 {
+  StatusLEDMode = 0;
   tallyConnectAtur();
 
   loadSettings();
@@ -775,6 +830,7 @@ void setup()
 
 void loop()
 {
+  handleStatusLED(StatusLEDMode);
 
   httpServer.handleClient();
 
@@ -784,14 +840,16 @@ void loop()
     handleData(data);
   }
 
-  if (!client.connected() && !apEnabled && millis() > lastCheck + interval)
+  if (!client.connected() && !apEnabled && millis() > lastCheck + 5000)
   {
     tallyConnectAtur();
-
+    handleStatusLED(StatusLEDMode);
     client.stop();
-
+    handleStatusLED(StatusLEDMode);
     vMixConnect();
-
+    handleStatusLED(StatusLEDMode);
     lastCheck = millis();
   }
+
+  
 }
